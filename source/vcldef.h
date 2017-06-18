@@ -809,6 +809,8 @@ VCLCLASS getmem (unsigned size);
 
 #define EXTERN extern
 
+#include "keyword.h"
+
 #include "publics.h"
 
 #include "statics.h"
@@ -833,7 +835,7 @@ EXTERN int  FileCount;
 
 EXTERN int * Skipping;
 EXTERN int * TrueTest;
-EXTERN byte *  ElseDone;
+EXTERN char *  ElseDone;
 
 #endif
 
