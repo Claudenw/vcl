@@ -72,6 +72,9 @@
 #define THISPTR(m)      m
 #endif
 
+
+#define EXTERN extern
+
 #include "errs.h"                       /* internal error definitions */
 
 #ifndef SYS_H
@@ -304,8 +307,9 @@ typedef struct promo
 
 /* reconstructed structure and global vars*/
 
-int SkipExpression;
-int opAssign;
+#define ItemisInteger(i) (((ITEM*)i)->kind == INT)
+#define ItemisAddressOrPointer(i) (((ITEM)i).cat > 0)
+
 
 
 struct _ctxt
@@ -345,7 +349,7 @@ typedef struct _srcfile
     uchar *       IncludeIp;
     struct _srcfile * NextFile;
 } SRCFILE;
-/* missing vars
+/* missing vars */
 // uchar * Progstart
 // ITEM * Stackbtm
 // ITME * Stacktop
@@ -807,15 +811,9 @@ VCLCLASS warning (int errnum);
 void *
 VCLCLASS getmem (unsigned size);
 
-#define EXTERN extern
 
-#include "keyword.h"
-
-#include "publics.h"
-
-#include "statics.h"
-
-
+EXTERN int SkipExpression;
+EXTERN int opAssign;
 
 EXTERN SYMBOLTABLE * SymbolTable;
 EXTERN int SymbolCount;

@@ -127,7 +127,9 @@ int
 VCLCLASS expression (void)
 {
     ITEM *          sp;
+#ifdef __DOS    
     unsigned        stat87;
+#endif
 
     sp = Ctx.Stackptr;
 
@@ -147,13 +149,14 @@ VCLCLASS expression (void)
             error( COMMAERR );
     }
 
+#ifdef __DOS
     stat87 = _status87();
     if ( stat87 & 0x5d )
     {
         _clear87();
         error( MATHERR );
     }
-
+#endif
     return (int) ( Ctx.Stackptr - sp );
 } /* expression */
 

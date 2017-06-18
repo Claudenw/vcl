@@ -69,6 +69,169 @@ extern "C" {
 #include "vcldef.h"
 #endif
 
+EXTERN SYMBOLTABLE     LibraryFunctions[] = {
+    /* NOTE: These must be maintained in collating sequence */
+    {"_Errno", SYSERRNO},
+    {"_filename", SYSFILENAME},
+    {"_lineno", SYSLINENO},
+    {"abs", SYSABS},
+    {"acos", SYSACOS},
+    {"asctime", SYSASCTIME},
+    {"asin", SYSASIN},
+    {"atan", SYSATAN},
+    {"atan2", SYSATAN},
+    {"atof", SYSATOF},
+    {"atoi", SYSATOI},
+    {"atol", SYSATOL},
+    {"ceil", SYSCEIL},
+    {"clrscr", SYSCLRSCRN},
+    {"cos", SYSCOS},
+    {"cosh", SYSCOSH},
+    {"cprintf", SYSCPRINTF},
+    {"cursor", SYSCURSOR},
+    {"exit", SYSEXIT},
+    {"exp", SYSEXP},
+    {"fabs", SYSFABS},
+    {"fclose", SYSFCLOSE},
+    {"fflush", SYSFFLUSH},
+    {"fgetc", SYSFGETC},
+    {"fgets", SYSFGETS},
+    {"findfirst", SYSFINDFIRST},
+    {"findnext", SYSFINDNEXT},
+    {"floor", SYSFLOOR},
+    {"fopen", SYSFOPEN},
+    {"fprintf", SYSFPRINTF},
+    {"fputc", SYSFPUTC},
+    {"fputs", SYSFPUTS},
+    {"fread", SYSFREAD},
+    {"free", SYSFREE},
+    {"fscanf", SYSFSCANF},
+    {"fseek", SYSFSEEK},
+    {"ftell", SYSFTELL},
+    {"fwrite", SYSFWRITE},
+    {"getch", SYSGETCH},
+    {"getchar", SYSGETCHAR},
+    {"gets", SYSGETS},
+    {"gmtime", SYSGMTIME},
+    {"localtime", SYSLOCALTIME},
+    {"log", SYSLOG},
+    {"log10", SYSLOG10},
+    {"longjmp", SYSLONGJMP},
+    {"malloc", SYSMALLOC},
+    {"mktime", SYSMKTIME},
+    {"pow", SYSPOW},
+    {"printf", SYSPRINTF},
+    {"putch", SYSPUTCH},
+    {"putchar", SYSPUTCHAR},
+    {"puts", SYSPUTS},
+    {"remove", SYSREMOVE},
+    {"rename", SYSRENAME},
+    {"rewind", SYSREWIND},
+    {"scanf", SYSSCANF},
+    {"setjmp", SYSSETJMP},
+    {"sin", SYSSIN},
+    {"sinh", SYSSINH},
+    {"sprintf", SYSSPRINTF},
+    {"sqrt", SYSSQRT},
+    {"sscanf", SYSSSCANF},
+    {"strcat", SYSSTRCAT},
+    {"strcmp", SYSSTRCMP},
+    {"strcpy", SYSSTRCPY},
+    {"strlen", SYSSTRLEN},
+    {"strncat", SYSSTRNCAT},
+    {"strncmp", SYSSTRNCMP},
+    {"strncpy", SYSSTRNCPY},
+    {"system", SYSSYSTEM},
+    {"tan", SYSTAN},
+    {"tanh", SYSTANH},
+    {"time", SYSTIME},
+    {"tmpfile", SYSTMPFILE},
+    {"tmpnam", SYSTMPNAM},
+    {"ungetc", SYSUNGETC}
+};
+
+
+/* keyword lookup table */
+SYMBOLTABLE Keywords[] = {
+    /* NOTE: These must be maintained in collating sequence */
+    {"auto", T_AUTO},
+    {"break", T_BREAK},
+    {"case", T_CASE},
+    {"char", T_CHAR},
+    {"const", T_CONST},
+    {"continue", T_CONTINUE},
+    {"default", T_DEFAULT},
+    {"do", T_DO},
+    {"double", T_DOUBLE},
+    {"else", T_ELSE},
+    {"enum", T_ENUM},
+    {"extern", T_EXTERNAL},
+    {"float", T_FLOAT},
+    {"for", T_FOR},
+    {"goto", T_GOTO},
+    {"if", T_IF},
+    {"int", T_INT},
+    {"long", T_LONG},
+    {"register", T_REGISTER},
+    {"return", T_RETURN},
+    {"short", T_SHORT},
+    {"sizeof", T_SIZEOF},
+    {"static", T_STATIC},
+    {"struct", T_STRUCT},
+    {"switch", T_SWITCH},
+    {"typedef", T_TYPEDEF},
+    {"union", T_UNION},
+    {"unsigned", T_UNSIGNED},
+    {"void", T_VOID},
+    {"volatile", T_VOLATILE},
+    {"while", T_WHILE}
+};
+
+#define MAXKEYWORDS (sizeof(Keywords)/sizeof(SYMBOLTABLE))
+
+/* multi-character operator lookup tbl */
+SYMBOLTABLE Operators[] = {
+    /* NOTE: These must be maintained in collating sequence */
+    {"!=", T_NE},
+    {"&&", T_LAND},
+    {"++", T_INCR},
+    {"--", T_DECR},
+    {"->", T_ARROW},
+    {"<<", T_SHL},
+    {"<=", T_LE},
+    {"==", T_EQ},
+    {">=", T_GE},
+    {">>", T_SHR},
+    {"||", T_LIOR}
+};
+
+SYMBOLTABLE PreProcessors[] = {
+    /* NOTE: These must be maintained in collating sequence */
+    {"define", P_DEFINE},
+    {"elif", P_ELIF},
+    {"else", P_ELSE},
+    {"endif", P_ENDIF},
+    {"error", P_ERROR},
+    {"if", P_IF},
+    {"ifdef", P_IFDEF},
+    {"ifndef", P_IFNDEF},
+    {"include", P_INCLUDE},
+    {"pragma", P_PRAGMA},
+    {"undef", P_UNDEF}
+};
+
+
+SYMBOLTABLE PreDefined[] = {
+    /* NOTE: These must be maintained in collating sequence */
+    {"CDECL", PD_CDECL},                /* TRUE, calling convention is c */
+    {"VCL", PD_VCL},                    /* MMmm, MMajor and mminor VCL version */
+    {"__DATE__", PD_DATE},              /* string constant date */
+    {"__FILE__", PD_FILE},              /* string constant current filename */
+    {"__LINE__", PD_LINE},              /* unsigned constant, current file line */
+    {"__MSDOS__", PD_OS},               /* TRUE if operating system is MSDOS */
+    {"__TIME__", PD_TIME}               /* string constant time */
+};
+
 
 /*
  * Build the predefined symbols
