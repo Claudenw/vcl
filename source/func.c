@@ -334,8 +334,8 @@ VCLCLASS ArgumentList (int argc, ITEM *args)
 
     while ( argc )
     {
-        void *          adr = rslva( args->value.cptr, args->lvalue );
-        int             siz = rslvs( args->size, args->cat );
+        void *          adr = rslvaddr( args->value.cptr, args->lvalue );
+        int             siz = rslvsize( args->size, args->cat );
         char *          vdata;
         int             rsiz = siz;
 

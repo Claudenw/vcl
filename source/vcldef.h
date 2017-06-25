@@ -73,7 +73,7 @@
 #endif
 
 
-#define EXTERN extern
+
 
 #include "errs.h"                       /* internal error definitions */
 
@@ -310,9 +310,14 @@ typedef struct promo
 #define ItemisInteger(i) (((ITEM*)i)->kind == INT)
 #define ItemisAddressOrPointer(i) (((ITEM)i).cat > 0)
 
+#define isPointer(x) (((VARIABLE *)x)->vcat > 0)
 
+#define rslvsize(x,y) ((y>0)?sizeof(char*):x)
+#define rslvaddr(x,y) ((y==LVALUE)?((void*)x):&x)
 
-struct _ctxt
+#define Assert(x) (x?error(EDOM):"")
+
+typedef struct _ctx
 {
     int            CurrFileno;
     int            CurrLineno;
@@ -324,11 +329,12 @@ struct _ctxt
     FUNCRUNNING *  Curfunc;
     FUNCTION *     Curfunction;
     FUNCTION *     NextFunction;
+    FUNCTION *     LinkFunction;
     char           Token;
     DATUM          Value;
     unsigned char * Progptr;
     unsigned char * svpptr;
-} Ctx;
+} CTX;
 
 typedef struct _vclCfg
 {
@@ -349,31 +355,27 @@ typedef struct _srcfile
     uchar *       IncludeIp;
     struct _srcfile * NextFile;
 } SRCFILE;
-/* missing vars */
-// uchar * Progstart
-// ITEM * Stackbtm
-// ITME * Stacktop
-// VARIABLE * VariableMemory
-// char * DataSpace
-// FUNCTION * FuncetionMemory
-// uchar * NextProto
-// int Saw_return
 
-/* missing funcs */
+typedef struct _jmpbuf
+{
+    int         jmp_id;
+    jmp_buf     jb;
+    CTX         jmp_ctx;
+} JMPBUF;
 
-// ItemisAddressOrPointer
-// ItemisInteger
-// ItemisArray
-// StackItemisAddressOrPointer
-// Assert
-// error
-// _clear87()
-// _status87()
-// rslvaddr()
-// rslvsize()
-// isArray()
-// isPointerArray()
 
+/* Sys headers */
+
+void
+VCLCLASS sys (void);
+
+/* stmt headers */
+
+void
+VCLCLASS statement (void);
+
+void
+VCLCLASS stmtbegin (void);
 
 /* Expr headers */
 
@@ -812,28 +814,142 @@ void *
 VCLCLASS getmem (unsigned size);
 
 
-EXTERN int SkipExpression;
-EXTERN int opAssign;
-
-EXTERN SYMBOLTABLE * SymbolTable;
-EXTERN int SymbolCount;
-EXTERN VclCfg vclCfg;
-
 
 /* PREPROC */
-EXTERN uchar * Op;
-EXTERN uchar * Ip;
-EXTERN int   IfLevel;
-EXTERN uchar * Word;
-EXTERN uchar * Line;
-EXTERN uchar * FilePath;
-EXTERN SRCFILE * FirstFile;
-EXTERN SRCFILE * LastFile;
-EXTERN int  FileCount;
+extern uchar * Op;
+extern uchar * Ip;
+extern int   IfLevel;
+extern uchar * Word;
+extern uchar * Line;
+extern uchar * FilePath;
 
-EXTERN int * Skipping;
-EXTERN int * TrueTest;
-EXTERN char *  ElseDone;
+
+extern VclCfg vclCfg;
+
+/* Extern vars from globinit */
+   /* configuration data */
+/*    rtopt.CompileOnly = FALSE;
+    rtopt.NoLineNumbers = FALSE;
+    rtopt.PrintPreprocess = FALSE;
+    rtopt.QuietMode = FALSE;
+*/
+    /* source file tracking */
+extern SRCFILE *  BaseFile;                    /* current source file */
+extern SRCFILE * FirstFile;                   /* head of list */
+extern SRCFILE * LastFile;                    /* last file added */
+extern SRCFILE * ThisFile;                    /* current file */
+extern int FileCount;                      /* for Ctx.CurrFileno */
+
+    /* context and pcode */
+extern CTX Ctx;
+//    memset( &Ctx, 0, sizeof( Ctx ) );   /* master context */
+extern unsigned char * Progstart;                   /* start of pcode space */
+extern int Progused;                       /* bytes of pcode space used */
+
+    /* variables */
+extern VARIABLE * VariableMemory;              /* variable space */
+extern int VariablesUsed;
+extern VARIABLELIST Globals;
+//    Globals.vfirst = NULL;
+//    Globals.vlast = NULL;
+extern VARIABLE * Blkvar;                      /* local block auto variables */
+
+    /* data space */
+extern char * Dataspace;                /* data space */
+extern char * MaxDataSpace;             /* maximum data space used */
+
+    /* functions */
+extern FUNCTION * FunctionMemory;       /* function space */
+extern int FunctionsCount;              /* functions count */
+extern FUNCTION * NextFunction;         /* next available function in table */
+
+    /* function prototypes */
+extern void * PrototypeMemory;          /* function prototype space */
+extern uchar * NextProto;               /* addr of next prototype */
+
+    /* symbol table */
+extern SYMBOLTABLE * SymbolTable;       /* symbol table */
+extern int SymbolCount;                 /* count of symbols in table */
+
+    /* stack */
+extern ITEM * Stackbtm;                 /* start of program stack */
+extern ITEM * Stackmax;                 /* maximum program stack used */
+extern ITEM * Stacktop;                 /* end of program stack */
+
+    /* preprocessor globals */
+extern int definedTest;                 /* -1='! defined', 0=none, 1='defined' */
+extern MACRO * FirstMacro;              /* head of macro list */
+
+extern int * Skipping;
+extern int * TrueTest;
+extern char *  ElseDone;
+
+//    memset( ElseDone, 0, sizeof( ElseDone ) );
+//    memset( Skipping, 0, sizeof( Skipping ) );
+//    memset( TrueTest, 0, sizeof( TrueTest ) );
+extern int IfLevel;                     /* current #if level */
+extern uchar * FilePath;                /* include file path buffer */
+extern uchar * Line;                    /* source line buffer */
+extern uchar * Ip;                      /* input source pointer */
+extern uchar * Op;                      /* output source pointer */
+extern int MacroCount;                  /* preprocessor macro count */
+extern int Nesting;                     /* #include nesting level */
+extern uchar * Word;                    /* preprocessor 'word' */
+
+    /* tokenizer globals */
+extern uchar isStruct;                  /* last getoken was a struct */
+
+    /* linker globals */
+extern uchar Linking;                   /* in linker */
+extern unsigned char * errptr;          /* pcode pointer on error */
+extern char fconst;                     /* function is a const */
+extern int  protoreturn;                /* function return type */
+extern char protocat;                   /* function return indirection level */
+
+    /* runtime globals */
+extern char ConstExpression;
+extern VARIABLE * elementpvar;          /* VARIABLE * for element() */
+extern int GotoOffset;                  /* offset of a goto */
+extern int GotoNesting;                 /* goto nesting level */
+extern jmp_buf gotojmp[];		
+//    memset( gotojmp, 0, sizeof( gotojmp ) );
+extern int opAssign;                    /* multi-char assignment operation */
+extern char Saw_return;                  /* "return" found in pcode */
+extern char Saw_break;                  /* "break" found in pcode */
+extern char Saw_continue;               /* "continue" found in pcode */
+extern int SkipExpression;              /* skipping the effect of expression */
+extern jmp_buf Shelljmp;
+//    memset( &Shelljmp, 0, sizeof( Shelljmp ) );
+extern JMPBUF stmtjmp;
+//    memset( &stmtjmp, 0, sizeof( stmtjmp ) );
+
+
+    /* function handling globals */
+extern jmp_buf BreakJmp;
+//    memset( &BreakJmp, 0, sizeof( BreakJmp ) );
+extern char inSystem;                   /* 'in system' indicator */
+extern int  jmp_val;                    /* pcode longjump() handling */
+extern char longjumping;                /* pcode longjump() in process */
+
+    /* system call globals */
+extern int memctr;                      /* memory allocation counter */
+extern int OpenFileCount;               /* open file count */
+extern int WasConsole;                  /* console i/o function indicator */
+extern int WasFileFunction;             /* file function indicator */
+
+    /* error handling */
+extern int ErrorCode;                      /* internal error code */
+extern int errno;
+
+#ifdef DEBUGGER
+extern int Running;
+extern void * wwnd;
+#endif
+
+
+#ifndef STATICS_H
+#include "statics.h"
+#endif
 
 #endif
 

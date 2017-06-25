@@ -26,7 +26,9 @@
 #ifdef _cplusplus
 extern "C" {
 #endif
+#ifdef __DOS
 #include <mem.h>
+#endif
 extern int errno;
 #ifdef _cplusplus
 }
